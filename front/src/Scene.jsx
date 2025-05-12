@@ -1,91 +1,76 @@
-import { Stage, Layer, Rect, Line, Image } from "react-konva";
-import { useEffect, useState } from "react";
+import { Stage, Layer, Rect, Image } from "react-konva";
+import { useEffect, useRef, useState } from "react";
 import gameStore from "./gameStore";
 import { observer } from "mobx-react-lite";
 import useImage from 'use-image';
 import './Scene.scss';
 
-
-
 export default observer(() => {
     const [size, setSize] = useState({ width: window.innerWidth, height: window.innerHeight });
-    const [, forceUpdate] = useState(0);
     const [bg] = useImage('/img/bg.webp', 'anonymous');
     const [bgSize, setBgSize] = useState({ w: 0, h: 0 });
+
+    const stageRef = useRef();
 
     useEffect(() => {
         if (bg) setBgSize({ w: bg.width, h: bg.height });
     }, [bg]);
-    // масштабируем фон по высоте, ширина авто
-    const bgScale = (size.height * 1.5) / bgSize.h;
-    const bgWidth = bgSize.w * bgScale;
-    const bgHeight = bgSize.h * bgScale;
-
 
     useEffect(() => {
-        const handleResize = () => {
-            setSize({ width: window.innerWidth, height: window.innerHeight });
-        };
+        const handleResize = () => setSize({ width: window.innerWidth, height: window.innerHeight });
         window.addEventListener("resize", handleResize);
         return () => window.removeEventListener("resize", handleResize);
     }, []);
 
     useEffect(() => {
         let frameId;
-        const tick = () => {
-            forceUpdate(n => n + 1);
-            frameId = requestAnimationFrame(tick);
-            gameStore.addFrame()
+        const render = () => {
+            gameStore.addFrame();
+            stageRef.current?.batchDraw();
+            frameId = requestAnimationFrame(render);
         };
-        tick();
+        render();
         return () => cancelAnimationFrame(frameId);
     }, []);
 
     const scale = 1;
     const players = gameStore.getInterpolatedPlayers();
-    // const players = gameStore.getLastPlayers();
     const map = gameStore.getInterpolatedMap();
-
     const me = players[gameStore.username] || { x: 0, y: 0 };
 
+    const bgScale = (size.height * 1.5) / bgSize.h;
+    const bgWidth = bgSize.w * bgScale;
+    const bgHeight = bgSize.h * bgScale;
     const bgX = -size.width - ((me.x / 5) * scale);
     const bgY = -size.height / 1.2 - ((me.y / 5) * scale);
 
+    const fps = JSON.parse(gameStore.frames).length;
+    const tps = JSON.parse(gameStore.tiks).length;
 
     return (
         <div className='Scene' style={{ width: "100vw", height: "100vh", overflow: "hidden" }}>
             <div className='Scene_info'>
-                FPS: {JSON.parse(gameStore.frames).length}
-                <br />
-                TPS: {JSON.parse(gameStore.tiks).length}
+                FPS: {fps}<br />
+                TPS: {tps}
             </div>
+
             <Stage
+                ref={stageRef}
                 width={size.width}
                 height={size.height}
                 x={-me.x * scale + size.width / 2}
                 y={-me.y * scale + size.height / 2}
+                shadowForStrokeEnabled={false}
+                perfectDrawEnabled={false}
             >
+                {bg && (
+                    <Layer shadowForStrokeEnabled={false}>
+                        <Image image={bg} x={bgX} y={bgY} width={bgWidth} height={bgHeight} />
+                        <Image image={bg} x={bgX + bgWidth - 1} y={bgY} width={bgWidth} height={bgHeight} />
+                    </Layer>
+                )}
 
-                {bg && <Layer>
-                    <Image
-                        image={bg}
-                        x={bgX} // центрируем фон по X
-                        y={bgY} // и по Y
-                        width={bgWidth}
-                        height={bgHeight}
-                    />
-                    <Image
-                        image={bg}
-                        x={bgX + bgWidth - 1} // центрируем фон по X
-                        y={bgY} // и по Y
-                        width={bgWidth}
-                        height={bgHeight}
-                    />
-                </Layer>
-                }
-
-                <Layer>
-                    {/* Map objects */}
+                <Layer shadowForStrokeEnabled={false}>
                     {map.map((obj, i) => (
                         <Rect
                             key={`map-${i}`}
@@ -105,7 +90,6 @@ export default observer(() => {
                         />
                     ))}
 
-                    {/* Players */}
                     {Object.entries(players).map(([username, { x, y }]) => (
                         <Rect
                             key={username}
