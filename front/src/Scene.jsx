@@ -39,7 +39,8 @@ export default observer(() => {
     }, []);
 
     const scale = 1;
-    const players = gameStore.getInterpolatedPlayers();
+    // const players = gameStore.getInterpolatedPlayers();
+    const players = gameStore.getLastPlayers();
     const map = gameStore.getInterpolatedMap();
 
     const me = players[gameStore.username] || { x: 0, y: 0 };

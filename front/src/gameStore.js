@@ -69,6 +69,13 @@ class GameStore {
         return result;
     }
 
+    getLastPlayers() {
+        const { snapshots } = this;
+        return snapshots.length
+            ? snapshots[snapshots.length - 1].players
+            : {};
+    }
+
 
 }
 
