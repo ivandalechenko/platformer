@@ -42,7 +42,7 @@ function addPlayer(name, x = spawnPoint.x, y = spawnPoint.y) {
         collisionFilter: {
             group: playerCollisionGroup,
         },
-        restitution: 0.3,
+        restitution: 0,
         friction: 0.1,
         frictionStatic: 0,
         frictionAir: 0,

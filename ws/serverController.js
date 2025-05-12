@@ -16,7 +16,7 @@ function handleConnection(ws, query) {
     ws.on('message', msg => {
         const { type, value } = JSON.parse(msg);
         if (type === 'button') {
-            if (value.button === 'KeyW' && value.status) {
+            if (value.button === 'Space' && value.status) {
                 jumpPlayer(name);
             }
             const k = codeMap[value.button];

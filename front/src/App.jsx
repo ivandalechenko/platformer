@@ -45,7 +45,7 @@ export default () => {
 
 
   useEffect(() => {
-    const keys = ['KeyW', 'KeyA', 'KeyS', 'KeyD'];
+    const keys = ['Space', 'KeyA', 'KeyD'];
 
     const handleKeyDown = (e) => {
       const code = e.code;

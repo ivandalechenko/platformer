@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import gameStore from "./gameStore";
 import { observer } from "mobx-react-lite";
 import useImage from 'use-image';
+import './Scene.scss';
+
 
 
 export default observer(() => {
@@ -33,14 +35,15 @@ export default observer(() => {
         const tick = () => {
             forceUpdate(n => n + 1);
             frameId = requestAnimationFrame(tick);
+            gameStore.addFrame()
         };
         tick();
         return () => cancelAnimationFrame(frameId);
     }, []);
 
     const scale = 1;
-    // const players = gameStore.getInterpolatedPlayers();
-    const players = gameStore.getLastPlayers();
+    const players = gameStore.getInterpolatedPlayers();
+    // const players = gameStore.getLastPlayers();
     const map = gameStore.getInterpolatedMap();
 
     const me = players[gameStore.username] || { x: 0, y: 0 };
@@ -51,12 +54,11 @@ export default observer(() => {
 
     return (
         <div className='Scene' style={{ width: "100vw", height: "100vh", overflow: "hidden" }}>
-            {/* {
-                JSON.stringify(bgSize)
-            }-
-            {
-                JSON.stringify(size)
-            } */}
+            <div className='Scene_info'>
+                FPS: {JSON.parse(gameStore.frames).length}
+                <br />
+                TPS: {JSON.parse(gameStore.tiks).length}
+            </div>
             <Stage
                 width={size.width}
                 height={size.height}

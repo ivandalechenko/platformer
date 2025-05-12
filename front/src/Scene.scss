@@ -1,0 +1,11 @@
+.Scene {
+    &_info {
+        position: fixed;
+        left: 0px;
+        top: 0px;
+        width: 300px;
+        height: 200px;
+        background: #0008;
+        z-index: 999;
+    }
+}

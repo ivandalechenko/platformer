@@ -4,7 +4,7 @@ const { connections } = require('./serverController');
 const physics = require('./physics');
 const { messageToAll } = require('./wsUtils');
 
-const tps = 60;
+const tps = 30;
 
 function gameLoop() {
     setInterval(() => {
