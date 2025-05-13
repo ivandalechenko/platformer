@@ -86,10 +86,29 @@ class GameStore {
         }
 
         const i = frames.findIndex(f => f.timestamp > now);
-        if (i === -1 || i === 0) {
-            return frames[frames.length - 1].players;
+
+        // fallback-интерполяция между последними двумя, если нормальной пары нет
+        if ((i === -1 || i === 0) && frames.length >= 2) {
+            const prev = frames[frames.length - 2];
+            const next = frames[frames.length - 1];
+            const dt = next.timestamp - prev.timestamp || 1;
+            const alpha = Math.max(0, Math.min(1, (now - prev.timestamp) / dt));
+
+            const result = {};
+            for (const username in next.players) {
+                const a = prev.players[username] || next.players[username];
+                const b = next.players[username];
+
+                result[username] = {
+                    x: a.x + (b.x - a.x) * alpha,
+                    y: a.y + (b.y - a.y) * alpha
+                };
+            }
+
+            return result;
         }
 
+        // обычная интерполяция
         const prev = frames[i - 1];
         const next = frames[i];
         const dt = next.timestamp - prev.timestamp || 1;
@@ -106,9 +125,10 @@ class GameStore {
             };
         }
 
-        console.log("this.renderDelay", this.renderDelay.toFixed(1), "α", alpha.toFixed(2), "ping", this.smoothedPing.toFixed(1));
+        console.log("renderDelay:", this.renderDelay.toFixed(1), "α:", alpha.toFixed(2), "ping:", this.smoothedPing.toFixed(1));
         return result;
     }
+
 
 
 
