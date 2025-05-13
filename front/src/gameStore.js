@@ -72,12 +72,11 @@ class GameStore {
 
     }
 
-
     getInterpolatedPlayers() {
         const baseDelay = this.tickDelta || 40;
         const networkDelay = this.smoothedPing;
 
-        this.renderDelay = Math.min(90, baseDelay * 1.5 + networkDelay / 2);
+        this.renderDelay = Math.min(80, baseDelay * 1.25 + networkDelay / 2);
         const now = Date.now() - this.renderDelay;
 
         const frames = this.snapshots;
@@ -87,33 +86,31 @@ class GameStore {
 
         const i = frames.findIndex(f => f.timestamp > now);
 
-        // 1️⃣ fallback-интерполяция по последним двум кадрам
+        const lerp = (a, b, t) => a + (b - a) * t;
+
+        // fallback + экстраполяция
         if ((i === -1 || i === 0) && frames.length >= 2) {
             const prev = frames[frames.length - 2];
             const next = frames[frames.length - 1];
-
             const dt = next.timestamp - prev.timestamp || 1;
-            const alpha = Math.max(0, Math.min(1, (now - prev.timestamp) / dt));
+            const alpha = Math.max(0, Math.min(1.2, (now - prev.timestamp) / dt));
 
             const result = {};
             for (const username in next.players) {
                 const a = prev.players[username] || next.players[username];
                 const b = next.players[username];
 
-                // если now > next.timestamp → экстраполяция
-                const isExtrapolating = now > next.timestamp;
-
                 result[username] = {
-                    x: a.x + (b.x - a.x) * alpha,
-                    y: a.y + (b.y - a.y) * alpha,
-                    extrapolated: isExtrapolating
+                    x: lerp(a.x, b.x, alpha),
+                    y: lerp(a.y, b.y, alpha),
+                    extrapolated: now > next.timestamp
                 };
             }
 
             return result;
         }
 
-        // 2️⃣ обычная интерполяция между двумя кадрами
+        // обычная интерполяция
         const prev = frames[i - 1];
         const next = frames[i];
         const dt = next.timestamp - prev.timestamp || 1;
@@ -125,13 +122,12 @@ class GameStore {
             const b = next.players[username];
 
             result[username] = {
-                x: a.x + (b.x - a.x) * alpha,
-                y: a.y + (b.y - a.y) * alpha,
+                x: lerp(a.x, b.x, alpha),
+                y: lerp(a.y, b.y, alpha),
                 extrapolated: false
             };
         }
 
-        console.log("renderDelay:", this.renderDelay.toFixed(1), "α:", alpha.toFixed(2), "ping:", this.smoothedPing.toFixed(1));
         return result;
     }
 
