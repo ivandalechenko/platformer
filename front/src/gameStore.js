@@ -94,6 +94,8 @@ class GameStore {
             };
         }
 
+        console.log("renderDelay", renderDelay, "α", alpha);
+
         return result;
     }
 
