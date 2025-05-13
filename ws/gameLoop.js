@@ -25,7 +25,7 @@ function gameLoop() {
             lastTick = now;
 
             addTik();
-            console.log(`tiks: ${tiks.length}`, 'tick', now, 'Δ', delta);
+            // console.log(`tiks: ${tiks.length}`, 'tick', now, 'Δ', delta);
 
             for (const name in connections) {
                 physics.applyControls(name, connections[name].buttons);
