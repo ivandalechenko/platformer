@@ -1,5 +1,6 @@
 // ===== gameStore.js =====
 import { makeAutoObservable } from 'mobx';
+import pingService from './pingService';
 
 class GameStore {
     username = '';
@@ -60,9 +61,12 @@ class GameStore {
 
     }
 
+
     getInterpolatedPlayers() {
         const baseDelay = this.lastInterval || 40;
-        const renderDelay = baseDelay * 1.5;
+        const networkDelay = pingService.ping || 100;
+        const renderDelay = baseDelay * 1.5 + networkDelay / 2;
+
         const now = Date.now() - renderDelay;
 
         const frames = this.snapshots;
@@ -73,7 +77,6 @@ class GameStore {
 
         const prev = frames[i - 1];
         const next = frames[i];
-
         const dt = next.timestamp - prev.timestamp || 1;
         const alpha = (now - prev.timestamp) / dt;
 
@@ -90,7 +93,6 @@ class GameStore {
 
         return result;
     }
-
 
     getLastPlayers() {
         const { snapshots } = this;

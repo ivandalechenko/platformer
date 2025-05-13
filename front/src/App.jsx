@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import useWebSocketWithReconnect from "./Socket";
 import Scene from "./Scene";
+import pingService from './pingService';
 
 import gameStore from "./gameStore";
 
@@ -45,6 +46,9 @@ export default () => {
 
 
   useEffect(() => {
+
+    // pingService.init(socketRef.current ? socketRef.current : '');
+
     const keys = ['Space', 'KeyA', 'KeyD'];
 
     const handleKeyDown = (e) => {

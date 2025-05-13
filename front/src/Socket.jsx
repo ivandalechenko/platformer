@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import pingService from "./pingService";
 
 const WEBSOCKET_URL = ((import.meta.env.VITE_WEBSOCKET_URL || 'ws://localhost:8080')).toString()
 
@@ -21,6 +22,7 @@ const useWebSocketWithReconnect = (
             //     const message = { type: 'join', game: gameStore.currentGameId, user: userStore.tgId };
             //     socketRef.current.send(JSON.stringify(message));
             // }
+            pingService.init(socketRef.current)
         };
 
         socketRef.current.onmessage = (event) => {

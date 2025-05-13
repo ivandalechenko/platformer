@@ -4,6 +4,7 @@ import gameStore from "./gameStore";
 import { observer } from "mobx-react-lite";
 import useImage from 'use-image';
 import './Scene.scss';
+import pingService from "./pingService";
 
 export default observer(() => {
     const [size, setSize] = useState({ width: window.innerWidth, height: window.innerHeight });
@@ -50,8 +51,11 @@ export default observer(() => {
     return (
         <div className='Scene' style={{ width: "100vw", height: "100vh", overflow: "hidden" }}>
             <div className='Scene_info'>
-                FPS: {fps}<br />
+                FPS: {fps}
+                <br />
                 TPS: {tps}
+                <br />
+                PING: {pingService.ping}
             </div>
 
             <Stage

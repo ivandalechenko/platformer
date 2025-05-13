@@ -22,6 +22,11 @@ function handleConnection(ws, query) {
             const k = codeMap[value.button];
             if (k != null) connections[name].buttons[k] = value.status;
         }
+
+        if (type === 'ping') {
+            ws.send(JSON.stringify({ type: "pong" }));
+        }
+
     });
 
     ws.on('close', () => {
