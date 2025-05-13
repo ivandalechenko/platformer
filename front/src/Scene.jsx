@@ -8,7 +8,7 @@ import pingService from "./pingService";
 
 export default observer(() => {
     const [size, setSize] = useState({ width: window.innerWidth, height: window.innerHeight });
-    const [bg] = useImage('/img/bg.webp', 'anonymous');
+    const [bg] = useImage('/img/bgMeme.png', 'anonymous');
     const [bgSize, setBgSize] = useState({ w: 0, h: 0 });
 
     const stageRef = useRef();
@@ -43,7 +43,7 @@ export default observer(() => {
     const bgWidth = bgSize.w * bgScale;
     const bgHeight = bgSize.h * bgScale;
     const bgX = -size.width - ((me.x / 5) * scale);
-    const bgY = -size.height / 1.2 - ((me.y / 5) * scale);
+    const bgY = -size.height / 1.2 + ((me.y / 5) * scale);
 
     const fps = JSON.parse(gameStore.frames).length;
     const tps = JSON.parse(gameStore.tiks).length;
@@ -55,11 +55,12 @@ export default observer(() => {
                 <br />
                 TPS: {tps}
                 <br />
-                PING: {pingService.ping}
+                PING: {pingService.ping} SPING: {Math.ceil(gameStore.smoothedPing)}
                 <br />
                 TICK DELTA: {gameStore.tickDelta}
                 <br />
                 RENDER DELAY: {gameStore.tickDelta}
+                <br />
             </div>
 
             <Stage
@@ -74,7 +75,7 @@ export default observer(() => {
                 {bg && (
                     <Layer shadowForStrokeEnabled={false}>
                         <Image image={bg} x={bgX} y={bgY} width={bgWidth} height={bgHeight} />
-                        <Image image={bg} x={bgX + bgWidth - 1} y={bgY} width={bgWidth} height={bgHeight} />
+                        {/* <Image image={bg} x={bgX + bgWidth - 1} y={bgY} width={bgWidth} height={bgHeight} /> */}
                     </Layer>
                 )}
 
@@ -98,8 +99,9 @@ export default observer(() => {
                         />
                     ))}
 
-                    {Object.entries(players).map(([username, { x, y }]) => (
-                        <Rect
+                    {Object.entries(players).map(([username, { x, y }]) => {
+
+                        return <Rect
                             key={username}
                             x={x * scale}
                             y={y * scale}
@@ -107,9 +109,9 @@ export default observer(() => {
                             height={20}
                             offsetX={10}
                             offsetY={10}
-                            fill={username === gameStore.username ? 'red' : 'blue'}
+                            fill={`hsl(${+username.replace('user', '') % 360} ,100%, 50%)`}
                         />
-                    ))}
+                    })}
                 </Layer>
             </Stage>
         </div>
