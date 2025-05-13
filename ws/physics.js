@@ -25,6 +25,7 @@ const objects = [
     Bodies.rectangle(-worldWidth / 2 + worldWidth / 2 - 100, -worldHeight / 2, 50, worldHeight, wallOpts),  // левая стена
 
     Bodies.rectangle(400, 20, 200, 100, trampolineOpts),
+    Bodies.rectangle(800, -200, 200, 100, trampolineOpts),
     Bodies.rectangle(650, -50, 250, 50, pikeOpts),
 ];
 
