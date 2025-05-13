@@ -64,24 +64,25 @@ class GameStore {
 
     getInterpolatedPlayers() {
         const baseDelay = this.lastInterval || 40;
-        const networkDelay = pingService.ping || 60; // можно зафиксировать
+        const networkDelay = pingService.ping || 60;
 
-        // ограничиваем, чтобы не ушло слишком далеко в прошлое
         const renderDelay = Math.min(100, baseDelay * 1.5 + networkDelay / 2);
-
         const now = Date.now() - renderDelay;
 
         const frames = this.snapshots;
-        if (frames.length < 2) return {};
+        if (frames.length < 2 || now < frames[0].timestamp) {
+            return {};
+        }
 
-        let i = frames.findIndex(f => f.timestamp > now);
-        if (i === -1 || i === 0) return frames[frames.length - 1].players;
+        const i = frames.findIndex(f => f.timestamp > now);
+        if (i === -1 || i === 0) {
+            return frames[frames.length - 1].players;
+        }
 
         const prev = frames[i - 1];
         const next = frames[i];
         const dt = next.timestamp - prev.timestamp || 1;
         const alpha = Math.max(0, Math.min(1, (now - prev.timestamp) / dt));
-
 
         const result = {};
         for (const username in next.players) {
@@ -93,11 +94,10 @@ class GameStore {
                 y: a.y + (b.y - a.y) * alpha
             };
         }
-
         console.log("renderDelay", renderDelay, "α", alpha);
-
         return result;
     }
+
 
     getLastPlayers() {
         const { snapshots } = this;
