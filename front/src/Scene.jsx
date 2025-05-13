@@ -56,6 +56,10 @@ export default observer(() => {
                 TPS: {tps}
                 <br />
                 PING: {pingService.ping}
+                <br />
+                TICK DELTA: {gameStore.tickDelta}
+                <br />
+                RENDER DELAY: {gameStore.tickDelta}
             </div>
 
             <Stage

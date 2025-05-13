@@ -6,6 +6,8 @@ class GameStore {
     username = '';
     frames = '[]';
     tiks = '[]';
+    tickDelta = 0;
+    renderDelay = 0;
 
     constructor() {
         makeAutoObservable(this);
@@ -33,8 +35,11 @@ class GameStore {
 
     update(data) {
         this.addTik();
+
+        const now = Date.now(); // время на клиенте при получении данных
+
         this.snapshots.push({
-            timestamp: data.timestamp,
+            timestamp: now,
             players: data.players,
             map: JSON.stringify(data.map)
         });
@@ -43,13 +48,14 @@ class GameStore {
             this.snapshots.shift();
         }
 
-        // обновляем средний интервал
+        // обновляем средний интервал между снапшотами
         if (this.snapshots.length >= 2) {
             const last = this.snapshots[this.snapshots.length - 1].timestamp;
             const prev = this.snapshots[this.snapshots.length - 2].timestamp;
-            this.lastInterval = last - prev;
+            this.tickDelta = last - prev;
         }
     }
+
 
 
     getInterpolatedMap() {
@@ -63,11 +69,11 @@ class GameStore {
 
 
     getInterpolatedPlayers() {
-        const baseDelay = this.lastInterval || 40;
+        const baseDelay = this.tickDelta || 40;
         const networkDelay = pingService.ping || 60;
 
-        const renderDelay = Math.min(100, baseDelay * 1.5 + networkDelay / 2);
-        const now = Date.now() - renderDelay;
+        this.renderDelay = Math.min(100, baseDelay * 1.5 + networkDelay / 2);
+        const now = Date.now() - this.renderDelay;
 
         const frames = this.snapshots;
         if (frames.length < 2 || now < frames[0].timestamp) {
@@ -94,7 +100,7 @@ class GameStore {
                 y: a.y + (b.y - a.y) * alpha
             };
         }
-        console.log("renderDelay", renderDelay, "α", alpha);
+        console.log("this.renderDelay", this.renderDelay, "α", alpha);
         return result;
     }
 
