@@ -64,8 +64,10 @@ class GameStore {
 
     getInterpolatedPlayers() {
         const baseDelay = this.lastInterval || 40;
-        const networkDelay = pingService.ping || 100;
-        const renderDelay = baseDelay * 1.5 + networkDelay / 2;
+        const networkDelay = pingService.ping || 60; // можно зафиксировать
+
+        // ограничиваем, чтобы не ушло слишком далеко в прошлое
+        const renderDelay = Math.min(100, baseDelay * 1.5 + networkDelay / 2);
 
         const now = Date.now() - renderDelay;
 
@@ -78,7 +80,8 @@ class GameStore {
         const prev = frames[i - 1];
         const next = frames[i];
         const dt = next.timestamp - prev.timestamp || 1;
-        const alpha = (now - prev.timestamp) / dt;
+        const alpha = Math.max(0, Math.min(1, (now - prev.timestamp) / dt));
+
 
         const result = {};
         for (const username in next.players) {
