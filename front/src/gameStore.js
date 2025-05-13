@@ -8,6 +8,7 @@ class GameStore {
     tiks = '[]';
     tickDelta = 0;
     renderDelay = 0;
+    smoothedPing = 60;
 
     constructor() {
         makeAutoObservable(this);
@@ -33,10 +34,11 @@ class GameStore {
 
     snapshots = []; // массив снапшотов
 
+
     update(data) {
         this.addTik();
 
-        const now = Date.now(); // время на клиенте при получении данных
+        const now = Date.now();
 
         this.snapshots.push({
             timestamp: now,
@@ -44,16 +46,19 @@ class GameStore {
             map: JSON.stringify(data.map)
         });
 
-        if (this.snapshots.length > 10) {
+        if (this.snapshots.length > 20) {
             this.snapshots.shift();
         }
 
-        // обновляем средний интервал между снапшотами
         if (this.snapshots.length >= 2) {
             const last = this.snapshots[this.snapshots.length - 1].timestamp;
             const prev = this.snapshots[this.snapshots.length - 2].timestamp;
             this.tickDelta = last - prev;
         }
+
+        // сглаживаем пинг (EMA: α = 0.1)
+        const newPing = pingService.ping || 60;
+        this.smoothedPing = this.smoothedPing * 0.9 + newPing * 0.1;
     }
 
 
@@ -70,9 +75,9 @@ class GameStore {
 
     getInterpolatedPlayers() {
         const baseDelay = this.tickDelta || 40;
-        const networkDelay = pingService.ping || 60;
+        const networkDelay = this.smoothedPing;
 
-        this.renderDelay = Math.min(100, baseDelay * 1.5 + networkDelay / 2);
+        this.renderDelay = Math.min(90, baseDelay * 1.5 + networkDelay / 2);
         const now = Date.now() - this.renderDelay;
 
         const frames = this.snapshots;
@@ -100,9 +105,13 @@ class GameStore {
                 y: a.y + (b.y - a.y) * alpha
             };
         }
-        console.log("this.renderDelay", this.renderDelay, "α", alpha);
+
+        console.log("this.renderDelay", this.renderDelay.toFixed(1), "α", alpha.toFixed(2), "ping", this.smoothedPing.toFixed(1));
         return result;
     }
+
+
+
 
 
     getLastPlayers() {
