@@ -30,7 +30,7 @@ class PingService {
                 this._lastPingSentAt = Date.now();
                 this.socket.send(JSON.stringify({ type: "ping" }));
             }
-        }, 2000);
+        }, 100);
     }
 }
 
