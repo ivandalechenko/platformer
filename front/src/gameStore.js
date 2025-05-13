@@ -87,10 +87,11 @@ class GameStore {
 
         const i = frames.findIndex(f => f.timestamp > now);
 
-        // fallback-интерполяция между последними двумя, если нормальной пары нет
+        // 1️⃣ fallback-интерполяция по последним двум кадрам
         if ((i === -1 || i === 0) && frames.length >= 2) {
             const prev = frames[frames.length - 2];
             const next = frames[frames.length - 1];
+
             const dt = next.timestamp - prev.timestamp || 1;
             const alpha = Math.max(0, Math.min(1, (now - prev.timestamp) / dt));
 
@@ -99,16 +100,20 @@ class GameStore {
                 const a = prev.players[username] || next.players[username];
                 const b = next.players[username];
 
+                // если now > next.timestamp → экстраполяция
+                const isExtrapolating = now > next.timestamp;
+
                 result[username] = {
                     x: a.x + (b.x - a.x) * alpha,
-                    y: a.y + (b.y - a.y) * alpha
+                    y: a.y + (b.y - a.y) * alpha,
+                    extrapolated: isExtrapolating
                 };
             }
 
             return result;
         }
 
-        // обычная интерполяция
+        // 2️⃣ обычная интерполяция между двумя кадрами
         const prev = frames[i - 1];
         const next = frames[i];
         const dt = next.timestamp - prev.timestamp || 1;
@@ -121,7 +126,8 @@ class GameStore {
 
             result[username] = {
                 x: a.x + (b.x - a.x) * alpha,
-                y: a.y + (b.y - a.y) * alpha
+                y: a.y + (b.y - a.y) * alpha,
+                extrapolated: false
             };
         }
 
