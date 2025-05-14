@@ -1,5 +1,6 @@
 // ===== physics.js =====
 const Matter = require('matter-js');
+const mapData = require('./map.json');
 const { Engine, World, Bodies, Body, Events } = Matter;
 
 const engine = Engine.create({
@@ -19,21 +20,42 @@ const worldHeight = 1000
 const trampolineOpts = { isStatic: true, restitution: 10, friction: 0, frictionStatic: 0, label: 'trampoline' };
 const pikeOpts = { isStatic: true, restitution: 0, friction: 0, frictionStatic: 0, label: 'pike' };
 
-const objects = [
-    Bodies.rectangle(0 + worldWidth / 2 - 100, 0, worldWidth, 50, floorOpts), // пол
-    Bodies.rectangle(worldWidth / 2 + worldWidth / 2 - 100, -worldHeight / 2, 50, worldHeight, wallOpts),  // левая стена
-    Bodies.rectangle(-worldWidth / 2 + worldWidth / 2 - 100, -worldHeight / 2, 50, worldHeight, wallOpts),  // левая стена
+const objects = mapData.map(obj => {
+    return Bodies.rectangle(
+        obj.x,
+        obj.y,
+        obj.w,
+        obj.h,
+        {
+            angle: obj.angle,
+            label: obj.type,
+            restitution: 0,
+            friction: 1,
+            frictionStatic: 1,
+            isStatic: true
+        }
+    )
+}
+);
 
-    Bodies.rectangle(400, 20, 200, 100, trampolineOpts),
-    Bodies.rectangle(800, -200, 200, 100, trampolineOpts),
-    Bodies.rectangle(650, -50, 250, 50, pikeOpts),
-];
 
 
-const spawnPoint = { x: 200, y: -100 }
+// const objects = [
+//     Bodies.rectangle(5000, 0, 11000, 50, floorOpts), // пол
+//     Bodies.rectangle(-100, -500, 50, 1000, wallOpts),  // левая стена
+//     Bodies.rectangle(10000, -500, 50, 1000, wallOpts),  // левая стена
 
-
+//     // Bodies.rectangle(400, 20, 200, 100, trampolineOpts),
+//     Bodies.rectangle(400, 20, 200, 100, { ...trampolineOpts, angle: 20 }),
+//     Bodies.rectangle(800, -200, 200, 100, trampolineOpts),
+//     Bodies.rectangle(650, -50, 250, 50, pikeOpts),
+// ];
 World.add(world, objects);
+
+
+const spawnPoint = { x: 100, y: -200 }
+
+
 
 const playerCollisionGroup = -1;
 const playerBodies = {};
@@ -129,14 +151,34 @@ function getPlayerState(name) {
 }
 
 function getMapState() {
-    return objects.map(b => ({
-        x: b.position.x,
-        y: b.position.y,
-        width: b.bounds.max.x - b.bounds.min.x,
-        height: b.bounds.max.y - b.bounds.min.y,
-        angle: b.angle,
-        type: b.label
-    }));
+    const objs = objects.map(b => {
+        const v = b.vertices;
+
+        // считаем реальные ширину и высоту по вершинам
+        const w = Math.hypot(v[1].x - v[0].x, v[1].y - v[0].y);
+        const h = Math.hypot(v[2].x - v[1].x, v[2].y - v[1].y);
+
+        // пересчёт центра в левый верхний угол с учётом поворота
+        const angle = b.angle;
+        const cos = Math.cos(angle);
+        const sin = Math.sin(angle);
+        const dx = -(w / 2);
+        const dy = -(h / 2);
+        const offsetX = dx * cos - dy * sin;
+        const offsetY = dx * sin + dy * cos;
+
+        return {
+            x: b.position.x + offsetX,
+            y: b.position.y + offsetY,
+            w,
+            h,
+            rotation: angle * (180 / Math.PI),
+            type: b.label
+        };
+    });
+    // console.log(objects);
+
+    return objs
 }
 
 module.exports = { addPlayer, removePlayer, applyControls, jumpPlayer, updatePhysics, getPlayerState, getMapState };

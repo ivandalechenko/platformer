@@ -1,11 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import useWebSocketWithReconnect from "./Socket";
 import Scene from "./Scene";
+import Redactor from "./Redactor";
 import pingService from './pingService';
+import pageStore from './pageStore';
 
 import gameStore from "./gameStore";
+import { observer } from "mobx-react-lite";
 
-export default () => {
+export default observer(() => {
 
   const [username, setusername] = useState('');
   const pressedKeys = useRef({}); // храним состояние нажатий
@@ -78,7 +81,16 @@ export default () => {
 
   return (
     <div className='App'>
-      <Scene />
+      <div className='App_controls'>
+        <div className='App_redactor' onClick={() => { pageStore.setPage('redactor') }}>REDACTOR</div>
+        <div className='App_scene' onClick={() => { pageStore.setPage('scene') }}>SCENE</div>
+      </div>
+      {
+        pageStore.page === 'scene' && <Scene />
+      }
+      {
+        pageStore.page === 'redactor' && <Redactor />
+      }
     </div>
   )
-}
+})

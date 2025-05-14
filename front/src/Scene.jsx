@@ -42,8 +42,8 @@ export default observer(() => {
     const bgScale = (size.height * 1.5) / bgSize.h;
     const bgWidth = bgSize.w * bgScale;
     const bgHeight = bgSize.h * bgScale;
-    const bgX = -size.width - ((me.x / 5) * scale);
-    const bgY = -size.height / 1.2 + ((me.y / 5) * scale);
+    const bgX = -size.width + ((me.x / 2) * scale);
+    const bgY = -size.height / 1.2 + ((me.y / 2) * scale);
 
     const fps = JSON.parse(gameStore.frames).length;
     const tps = JSON.parse(gameStore.tiks).length;
@@ -75,29 +75,29 @@ export default observer(() => {
                 {bg && (
                     <Layer shadowForStrokeEnabled={false}>
                         <Image image={bg} x={bgX} y={bgY} width={bgWidth} height={bgHeight} />
-                        {/* <Image image={bg} x={bgX + bgWidth - 1} y={bgY} width={bgWidth} height={bgHeight} /> */}
                     </Layer>
                 )}
 
                 <Layer shadowForStrokeEnabled={false}>
-                    {map.map((obj, i) => (
-                        <Rect
+                    {map.map((obj, i) => {
+
+                        // console.log(obj);
+                        return <Rect
                             key={`map-${i}`}
-                            x={obj.x * scale}
-                            y={obj.y * scale}
-                            width={obj.width * scale}
-                            height={obj.height * scale}
-                            offsetX={(obj.width * scale) / 2}
-                            offsetY={(obj.height * scale) / 2}
-                            rotation={(obj.angle * 180) / Math.PI}
+                            x={(obj.x) * scale}
+                            y={(obj.y) * scale}
+                            width={obj.w * scale}
+                            height={obj.h * scale}
+                            rotation={obj.rotation} // ← уже в градусах
                             fill={{
                                 'wall': '#fff2',
                                 'floor': '#AAA',
                                 'trampoline': '#22F',
                                 'pike': '#f00'
-                            }[obj.type]}
+                            }[obj.type] || 'gray'}
                         />
-                    ))}
+                    })}
+
 
                     {Object.entries(players).map(([username, { x, y }]) => {
 

@@ -131,3 +131,17 @@ textarea {
 html {
     scroll-behavior: smooth;
 }
+
+
+.App {
+    &_controls {
+        position: fixed;
+        left: 300px;
+        background: #000;
+        z-index: 99;
+    }
+}
+
+button {
+    color: #000;
+}
