@@ -53,7 +53,7 @@ const objects = mapData.map(obj => {
 World.add(world, objects);
 
 
-const spawnPoint = { x: 100, y: -200 }
+const spawnPoint = { x: 100, y: 400 }
 
 
 
