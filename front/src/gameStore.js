@@ -38,28 +38,31 @@ class GameStore {
     update(data) {
         this.addTik();
 
-        const now = Date.now();
-
-        this.snapshots.push({
-            timestamp: now,
-            players: data.players,
-            map: JSON.stringify(data.map)
-        });
-
-        if (this.snapshots.length > 20) {
-            this.snapshots.shift();
-        }
-
-        if (this.snapshots.length >= 2) {
-            const last = this.snapshots[this.snapshots.length - 1].timestamp;
-            const prev = this.snapshots[this.snapshots.length - 2].timestamp;
-            this.tickDelta = last - prev;
-        }
-
-        // сглаживаем пинг (EMA: α = 0.1)
+        const serverTimestamp = data.timestamp;
         const newPing = pingService.ping || 60;
         this.smoothedPing = this.smoothedPing * 0.9 + newPing * 0.1;
+
+        // если снапшоты пустые или пришедший снапшот новее последнего — добавляем
+        const lastSnapshot = this.snapshots[this.snapshots.length - 1];
+        if (!lastSnapshot || serverTimestamp > lastSnapshot.timestamp) {
+            this.snapshots.push({
+                timestamp: serverTimestamp,
+                players: data.players,
+                map: JSON.stringify(data.map)
+            });
+
+            if (this.snapshots.length > 20) {
+                this.snapshots.shift();
+            }
+
+            if (this.snapshots.length >= 2) {
+                const last = this.snapshots[this.snapshots.length - 1].timestamp;
+                const prev = this.snapshots[this.snapshots.length - 2].timestamp;
+                this.tickDelta = last - prev;
+            }
+        }
     }
+
 
 
 

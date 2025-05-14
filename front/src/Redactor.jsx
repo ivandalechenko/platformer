@@ -4,10 +4,11 @@ import { Stage, Layer, Rect, Transformer, Text } from 'react-konva';
 const gridSize = 50;
 
 const colorByType = {
-    floor: 'gray',
-    wall: 'black',
-    trampoline: 'green',
-    pike: 'red'
+    floor: '#000',
+    wall: '#0008',
+    spawnPoint: '#2F2',
+    trampoline: '#22F',
+    pike: '#f22'
 };
 
 export default function Editor() {
