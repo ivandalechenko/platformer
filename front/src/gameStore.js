@@ -55,9 +55,10 @@ class GameStore {
 
         // если снапшоты пустые или пришедший снапшот новее последнего — добавляем
         const lastSnapshot = this.snapshots[this.snapshots.length - 1];
-        if (!lastSnapshot || serverTimestamp > lastSnapshot.timestamp) {
+        if (!lastSnapshot || serverTimestamp > lastSnapshot.serverTimestamp) {
             this.snapshots.push({
-                timestamp: serverTimestamp,
+                serverTimestamp: serverTimestamp,
+                timestamp: Date.now(),
                 players: data.players,
             });
 
