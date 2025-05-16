@@ -2,7 +2,7 @@
 // ===== gameLoop.js =====
 const { connections } = require('./serverController');
 const physics = require('./physics');
-const { messageToAll } = require('./wsUtils');
+const { messageToAll, sendUpdate } = require('./wsUtils');
 
 let tiks = []
 
@@ -41,8 +41,7 @@ function gameLoop() {
 
             const map = physics.getMapState();
 
-            messageToAll(connections, {
-                type: 'update',
+            sendUpdate(connections, {
                 data: { timestamp: now, players, map }
             });
         }

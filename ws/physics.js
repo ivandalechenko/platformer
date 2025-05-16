@@ -12,50 +12,41 @@ const world = engine.world;
 
 
 // настройки для стен и пола с метками
-const wallOpts = { isStatic: true, restitution: 0, friction: 0, frictionStatic: 0, label: 'wall' };
-const floorOpts = { isStatic: true, restitution: 0, friction: 1, frictionStatic: 1, label: 'floor' };
-const worldWidth = 10000
-const worldHeight = 1000
-
-const trampolineOpts = { isStatic: true, restitution: 10, friction: 0, frictionStatic: 0, label: 'trampoline' };
-const pikeOpts = { isStatic: true, restitution: 0, friction: 0, frictionStatic: 0, label: 'pike' };
-
-const objects = mapData.map(obj => {
-    return Bodies.rectangle(
-        obj.x,
-        obj.y,
-        obj.w,
-        obj.h,
-        {
-            angle: obj.angle,
-            label: obj.type,
-            restitution: 0,
-            friction: 1,
-            frictionStatic: 1,
-            isStatic: true
-        }
-    )
+const blockTypes = {
+    wall: { isStatic: true, restitution: 0, friction: 0, frictionStatic: 0, label: 'wall' },
+    floor: { isStatic: true, restitution: 0, friction: 1, frictionStatic: 1, label: 'floor' },
+    trampoline: { isStatic: true, restitution: 10, friction: 0, frictionStatic: 0, label: 'trampoline' },
+    pike: { isStatic: true, restitution: 0, friction: 0, frictionStatic: 0, label: 'pike' },
 }
-);
+
+let objects = []
+let spawnPoint = { x: 100, y: 400 }
+
+for (const mapObj of mapData) {
+    if (mapObj.type === 'spawnPoint') {
+        spawnPoint = { x: mapObj.x, y: mapObj.y }
+        continue;
+    }
+
+
+    const opts = blockTypes[mapObj.type];
+    if (!opts) continue;
+
+    objects.push(Bodies.rectangle(
+        mapObj.x,
+        mapObj.y,
+        mapObj.w,
+        mapObj.h,
+        {
+            angle: mapObj.angle,
+            ...blockTypes[mapObj.type]
+        }
+    ))
+}
 
 
 
-// const objects = [
-//     Bodies.rectangle(5000, 0, 11000, 50, floorOpts), // пол
-//     Bodies.rectangle(-100, -500, 50, 1000, wallOpts),  // левая стена
-//     Bodies.rectangle(10000, -500, 50, 1000, wallOpts),  // левая стена
-
-//     // Bodies.rectangle(400, 20, 200, 100, trampolineOpts),
-//     Bodies.rectangle(400, 20, 200, 100, { ...trampolineOpts, angle: 20 }),
-//     Bodies.rectangle(800, -200, 200, 100, trampolineOpts),
-//     Bodies.rectangle(650, -50, 250, 50, pikeOpts),
-// ];
 World.add(world, objects);
-
-
-const spawnPoint = { x: 100, y: 400 }
-
-
 
 const playerCollisionGroup = -1;
 const playerBodies = {};
@@ -117,6 +108,7 @@ Events.on(engine, 'collisionStart', event => {
                 if (bodyB.label === 'pike') player = bodyA;
                 if (bodyA.label === 'pike') player = bodyB;
                 Body.setPosition(player, { x: spawnPoint.x, y: spawnPoint.y });
+                Body.setVelocity(player, { x: 0, y: 0 });
             }
         });
     });
@@ -147,7 +139,7 @@ function updatePhysics(delta) {
 
 function getPlayerState(name) {
     const b = playerBodies[name];
-    return b && { x: b.position.x, y: b.position.y, vx: b.velocity.x, vy: b.velocity.y };
+    return b && { x: b.position.x.toFixed(2), y: b.position.y.toFixed(2) };
 }
 
 function getMapState() {

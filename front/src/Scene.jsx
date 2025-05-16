@@ -29,14 +29,16 @@ export default observer(() => {
             gameStore.addFrame();
             stageRef.current?.batchDraw();
             frameId = requestAnimationFrame(render);
+            // gameStore.getInterpolatedPlayers()
         };
         render();
         return () => cancelAnimationFrame(frameId);
     }, []);
 
     const scale = 1;
+
+    // const map = gameStore.getInterpolatedMap();
     const players = gameStore.getInterpolatedPlayers();
-    const map = gameStore.getInterpolatedMap();
     const me = players[gameStore.username] || { x: 0, y: 0 };
 
     const bgScale = (size.height * 1.5) / bgSize.h;
@@ -57,9 +59,7 @@ export default observer(() => {
                 <br />
                 PING: {pingService.ping} SPING: {Math.ceil(gameStore.smoothedPing)}
                 <br />
-                TICK DELTA: {gameStore.tickDelta}
-                <br />
-                RENDER DELAY: {gameStore.tickDelta}
+                PLAYERS: {Object.keys(players).length}
                 <br />
             </div>
 
@@ -79,7 +79,7 @@ export default observer(() => {
                 )}
 
                 <Layer shadowForStrokeEnabled={false}>
-                    {map.map((obj, i) => {
+                    {JSON.parse(gameStore.map).map((obj, i) => {
 
                         // console.log(obj);
                         return <Rect

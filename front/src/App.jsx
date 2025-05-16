@@ -29,9 +29,12 @@ export default observer(() => {
     (event) => {
       try {
         const messageData = JSON.parse(event.data);
-
         if (messageData.type === 'update') {
-          gameStore.update(messageData.data)
+          gameStore.update(messageData.data, messageData.timestamp)
+        }
+        if (messageData.type === 'initData') {
+          gameStore.addSnapshot(messageData.data)
+          gameStore.updateMap(messageData.data)
         }
       } catch (error) {
         console.error('Error parsing WebSocket message:', error);

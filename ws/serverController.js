@@ -1,7 +1,8 @@
 
 // ===== serverController.js =====
-const { addPlayer, removePlayer, applyControls, jumpPlayer } = require('./physics');
+const { addPlayer, removePlayer, applyControls, jumpPlayer, getPlayerState, getMapState } = require('./physics');
 const { handlePlayerDisconnect } = require('./playerService');
+const { messageToAll } = require('./wsUtils');
 
 const connections = {};
 const codeMap = { KeyA: 'A', KeyD: 'D' };
@@ -12,6 +13,21 @@ function handleConnection(ws, query) {
 
     connections[name] = { ws, buttons: { A: false, D: false } };
     addPlayer(name);
+
+
+    // Инициализационные данные
+    const players = {};
+    for (const name in connections) {
+        const s = getPlayerState(name);
+        if (s) players[name] = s;
+    }
+    const map = getMapState();
+    const now = Date.now();
+    messageToAll(connections, {
+        type: 'initData',
+        data: { timestamp: now, players, map }
+    });
+
 
     ws.on('message', msg => {
         const { type, value } = JSON.parse(msg);

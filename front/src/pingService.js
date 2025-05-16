@@ -5,7 +5,7 @@ class PingService {
     socket = null;
 
     constructor() {
-        makeAutoObservable(this);
+        makeAutoObservable(this, {}, { autoBind: true, enforceActions: 'never' });
     }
 
     init(socket) {

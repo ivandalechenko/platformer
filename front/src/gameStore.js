@@ -9,9 +9,12 @@ class GameStore {
     tickDelta = 0;
     renderDelay = 0;
     smoothedPing = 60;
+    players = {};
+    map = '[]';
 
     constructor() {
-        makeAutoObservable(this);
+        // makeAutoObservable(this);
+        makeAutoObservable(this, {}, { autoBind: true, deep: true, enforceActions: 'never' });
     }
 
     addFrame() {
@@ -34,8 +37,16 @@ class GameStore {
 
     snapshots = []; // массив снапшотов
 
+    updateMap(data) {
+        this.map = JSON.stringify(data.map)
+        console.log(this.map);
+    }
 
-    update(data) {
+    addSnapshot(data) {
+        console.log(`ADDED SNAPSHOT`);
+
+        console.log(data);
+
         this.addTik();
 
         const serverTimestamp = data.timestamp;
@@ -48,7 +59,6 @@ class GameStore {
             this.snapshots.push({
                 timestamp: serverTimestamp,
                 players: data.players,
-                map: JSON.stringify(data.map)
             });
 
             if (this.snapshots.length > 20) {
@@ -63,17 +73,33 @@ class GameStore {
         }
     }
 
+    update(data, ts) {
+        const prevSnapshot = JSON.parse(JSON.stringify(this.snapshots[this.snapshots.length - 1]))
 
+        for (const player of data) {
+            prevSnapshot.players[player[0]].x = +player[1]
+            prevSnapshot.players[player[0]].y = +player[2]
+        }
 
+        const newSnapshot = {
+            timestamp: ts,
+            players: prevSnapshot.players,
+        }
 
-    getInterpolatedMap() {
-        const frames = this.snapshots;
-        if (!frames.length) return [];
-
-        // берём map из самого свежего кадра
-        return JSON.parse(frames[frames.length - 1].map) || []
-
+        this.addSnapshot(newSnapshot)
     }
+
+
+
+
+    // getInterpolatedMap() {
+    //     const frames = this.snapshots;
+    //     if (!frames.length) return [];
+
+    //     // берём map из самого свежего кадра
+    //     return JSON.parse(frames[frames.length - 1].map) || []
+
+    // }
 
     getInterpolatedPlayers() {
         const baseDelay = this.tickDelta || 40;
@@ -110,6 +136,7 @@ class GameStore {
                 };
             }
 
+            // console.log(result);
             return result;
         }
 

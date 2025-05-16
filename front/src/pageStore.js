@@ -4,7 +4,7 @@ class PageStore {
     page = 'scene';
 
     constructor() {
-        makeAutoObservable(this);
+        makeAutoObservable(this, {}, { autoBind: true, enforceActions: 'never' });
     }
 
     setPage(pg) {
