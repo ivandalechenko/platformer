@@ -109,9 +109,12 @@ class GameStore {
         const now = Date.now() - this.renderDelay;
 
         const frames = this.snapshots;
-        if (frames.length < 2 || now < frames[0].timestamp) {
+        if (frames.length < 2) {
             return {};
         }
+        // if (frames.length < 2 || now < frames[0].timestamp) {
+        //     return {};
+        // }
 
         const i = frames.findIndex(f => f.timestamp > now);
 

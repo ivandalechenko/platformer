@@ -61,6 +61,15 @@ export default observer(() => {
                 <br />
                 PLAYERS: {Object.keys(players).length}
                 <br />
+                SNPCOUNT: {gameStore.snapshots.length}
+                <br />
+                RENDERDELAY: {gameStore.renderDelay.toFixed(2)}
+                <br />
+                NOW: {Date.now()}
+                <br />
+                NOW-RDL: {Date.now() - gameStore.renderDelay}
+                <br />
+                (NOW-RDL) - (FIRST_TS): {(Date.now() - gameStore.renderDelay) - gameStore.snapshots[0]?.timestamp}
             </div>
 
             <Stage
