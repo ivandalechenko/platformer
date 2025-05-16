@@ -54,7 +54,7 @@ function gameLoop() {
             const sendEnd = performance.now();
             const sendDuration = sendEnd - sendStart;
 
-            console.log(`players: ${playersCount} kef: ${(+sendDuration.toFixed(2) / +physicsDuration.toFixed(2)).toFixed(2)} physics: ${physicsDuration.toFixed(2)}ms, send: ${sendDuration.toFixed(2)}ms`);
+            // console.log(`players: ${playersCount} kef: ${(+sendDuration.toFixed(2) / +physicsDuration.toFixed(2)).toFixed(2)} physics: ${physicsDuration.toFixed(2)}ms, send: ${sendDuration.toFixed(2)}ms`);
         }
 
         setImmediate(loop);
