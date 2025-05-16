@@ -61,7 +61,7 @@ function addPlayer(name, x = spawnPoint.x, y = spawnPoint.y) {
         restitution: 0,
         friction: 0.1,
         frictionStatic: 0,
-        frictionAir: 0.02,
+        frictionAir: 0,
         mass: 1,
         label: 'player'
     });
