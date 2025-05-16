@@ -76,10 +76,23 @@ class GameStore {
 
     update(data, ts) {
         const prevSnapshot = JSON.parse(JSON.stringify(this.snapshots[this.snapshots.length - 1]))
+        console.log(data);
+
 
         for (const player of data) {
-            prevSnapshot.players[player[0]].x = +player[1]
-            prevSnapshot.players[player[0]].y = +player[2]
+            const [id, x, y] = player;
+
+            if (x === null) {
+                delete prevSnapshot.players[id];
+                continue;
+            }
+
+            if (!prevSnapshot.players[id]) {
+                prevSnapshot.players[id] = { x: +x, y: +y };
+            } else {
+                prevSnapshot.players[id].x = +x;
+                prevSnapshot.players[id].y = +y;
+            }
         }
 
         const newSnapshot = {

@@ -44,4 +44,11 @@ const messageToAll = (connections, message) => {
     }
 };
 
-module.exports = { messageToAll, sendUpdate };
+const messageToUser = (ws, message) => {
+    if (ws.readyState === 1) {
+        // console.log('send');
+        ws.send(JSON.stringify(message));
+    }
+};
+
+module.exports = { messageToAll, sendUpdate, messageToUser };

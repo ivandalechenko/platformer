@@ -2,7 +2,7 @@
 // ===== serverController.js =====
 const { addPlayer, removePlayer, applyControls, jumpPlayer, getPlayerState, getMapState } = require('./physics');
 const { handlePlayerDisconnect } = require('./playerService');
-const { messageToAll } = require('./wsUtils');
+const { messageToAll, messageToUser } = require('./wsUtils');
 
 const connections = {};
 const codeMap = { KeyA: 'A', KeyD: 'D' };
@@ -22,7 +22,7 @@ function handleConnection(ws, query) {
     }
     const map = getMapState();
     const now = Date.now();
-    messageToAll(connections, {
+    messageToUser(ws, {
         type: 'initData',
         data: { timestamp: now, players, map }
     });
