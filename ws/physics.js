@@ -52,6 +52,8 @@ const playerCollisionGroup = -1;
 const playerBodies = {};
 
 function addPlayer(name, x = spawnPoint.x, y = spawnPoint.y) {
+    console.log(`added ${name}`);
+
     const body = Bodies.rectangle(x, y, 20, 20, {
         collisionFilter: {
             group: playerCollisionGroup,
@@ -65,6 +67,7 @@ function addPlayer(name, x = spawnPoint.x, y = spawnPoint.y) {
     });
     Body.setInertia(body, Infinity);
     playerBodies[name] = body;
+
     World.add(world, body);
 }
 

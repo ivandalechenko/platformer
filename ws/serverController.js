@@ -14,7 +14,6 @@ function handleConnection(ws, query) {
     connections[name] = { ws, buttons: { A: false, D: false } };
     addPlayer(name);
 
-
     // Инициализационные данные
     const players = {};
     for (const name in connections) {

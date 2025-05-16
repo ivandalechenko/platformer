@@ -25,25 +25,36 @@ function gameLoop() {
             lastTick = now;
 
             addTik();
-            // console.log(`tiks: ${tiks.length}`, 'tick', now, 'Δ', delta);
 
             for (const name in connections) {
                 physics.applyControls(name, connections[name].buttons);
             }
 
+            const physicsStart = performance.now();
             physics.updatePhysics(tickInterval);
+            const physicsEnd = performance.now();
+            const physicsDuration = physicsEnd - physicsStart;
 
             const players = {};
+            let playersCount = 0
             for (const name in connections) {
                 const s = physics.getPlayerState(name);
-                if (s) players[name] = s;
+                if (s) {
+                    players[name] = s;
+                    playersCount += 1
+                }
             }
 
             const map = physics.getMapState();
 
+            const sendStart = performance.now();
             sendUpdate(connections, {
                 data: { timestamp: now, players, map }
             });
+            const sendEnd = performance.now();
+            const sendDuration = sendEnd - sendStart;
+
+            console.log(`players: ${playersCount} kef: ${(+sendDuration.toFixed(2) / +physicsDuration.toFixed(2)).toFixed(2)} physics: ${physicsDuration.toFixed(2)}ms, send: ${sendDuration.toFixed(2)}ms`);
         }
 
         setImmediate(loop);
