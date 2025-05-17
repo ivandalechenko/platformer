@@ -59,7 +59,7 @@ function addPlayer(name, x = spawnPoint.x, y = spawnPoint.y) {
             group: playerCollisionGroup,
         },
         restitution: 0,
-        friction: 0.1,
+        friction: 0.01,
         frictionStatic: 0,
         frictionAir: 0,
         mass: 1,
@@ -83,7 +83,7 @@ function applyControls(name, buttons) {
     const b = playerBodies[name];
     if (!b) return;
 
-    const accel = 0.5;
+    const accel = 1;
     let vx = b.velocity.x;
 
     if (buttons.A) vx -= accel;
