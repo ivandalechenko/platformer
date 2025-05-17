@@ -1,4 +1,4 @@
-import { Stage, Layer, Rect, Image } from "react-konva";
+import { Stage, Layer, Rect, Image, Group } from "react-konva";
 import { useEffect, useRef, useState } from "react";
 import gameStore from "./gameStore";
 import { observer } from "mobx-react-lite";
@@ -9,6 +9,7 @@ import pingService from "./pingService";
 export default observer(() => {
     const [size, setSize] = useState({ width: window.innerWidth, height: window.innerHeight });
     const [bg] = useImage('/img/bgMeme.png', 'anonymous');
+    const [face] = useImage('/img/face.jpg', 'anonymous');
     const [bgSize, setBgSize] = useState({ w: 0, h: 0 });
 
     const stageRef = useRef();
@@ -108,19 +109,31 @@ export default observer(() => {
                     })}
 
 
-                    {Object.entries(players).map(([username, { x, y }]) => {
+                    {face && Object.entries(players).map(([username, { x, y }]) => {
+                        const color = `hsla(${+username.replace('user', '') % 360}, 100%, 50%, 0.5)`;
 
-                        return <Rect
-                            key={username}
-                            x={x * scale}
-                            y={y * scale}
-                            width={20}
-                            height={20}
-                            offsetX={10}
-                            offsetY={10}
-                            fill={`hsl(${+username.replace('user', '') % 360} ,100%, 50%)`}
-                        />
+                        return (
+                            <Group
+                                key={username}
+                                x={x * scale}
+                                y={y * scale}
+                                offsetX={10}
+                                offsetY={10}
+                            >
+                                <Image
+                                    image={face}
+                                    width={20}
+                                    height={20}
+                                />
+                                <Rect
+                                    width={20}
+                                    height={20}
+                                    fill={color}
+                                />
+                            </Group>
+                        );
                     })}
+
                 </Layer>
             </Stage>
         </div>

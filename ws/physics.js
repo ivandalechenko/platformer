@@ -169,7 +169,7 @@ function updatePhysics(delta) {
 
 function getPlayerState(name) {
     const b = playerBodies[name];
-    return b && { x: b.position.x.toFixed(2), y: b.position.y.toFixed(2) };
+    return b && { x: Math.round(b.position.x), y: Math.round(b.position.y) };
 }
 
 function getMapState() {
