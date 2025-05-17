@@ -82,28 +82,55 @@ function removePlayer(name) {
 function applyControls(name, buttons) {
     const b = playerBodies[name];
     if (!b) return;
-    if (buttons.A) Body.setVelocity(b, { x: -5, y: b.velocity.y });
-    else if (buttons.D) Body.setVelocity(b, { x: 5, y: b.velocity.y });
+
+    const accel = 0.5;
+    let vx = b.velocity.x;
+
+    if (buttons.A) vx -= accel;
+    if (buttons.D) vx += accel;
+
+    // Ограничиваем скорость по оси X
+    if (vx > 5) vx = 5;
+    if (vx < -5) vx = -5;
+
+    Body.setVelocity(b, { x: vx, y: b.velocity.y });
 }
+
 
 // прыжок только при контакте с полом (label 'floor')
 const grounded = {};
 Events.on(engine, 'collisionStart', event => {
     event.pairs.forEach(p => {
-        const { bodyA, bodyB } = p;
+        const { bodyA, bodyB, collision } = p;
         Object.entries(playerBodies).forEach(([name, b]) => {
             if ((bodyA === b && ['floor', 'trampoline'].includes(bodyB.label)) || (bodyB === b && ['floor', 'trampoline'].includes(bodyA.label))) {
                 grounded[name] = true;
             }
 
             if ((bodyA === b && bodyB.label === 'trampoline') || (bodyB === b && bodyA.label === 'trampoline')) {
-                let player
-                if (bodyB.label === 'trampoline') player = bodyA;
-                if (bodyA.label === 'trampoline') player = bodyB;
-                Body.setVelocity(player, {
-                    x: player.velocity.x * (1 + ((Math.random() - .5) / 1.5)),
-                    y: Math.max(player.velocity.y * -1.005, -10)   // подберите по вкусу
-                });
+                // let player
+                // if (bodyB.label === 'trampoline') player = bodyA;
+                // if (bodyA.label === 'trampoline') player = bodyB;
+                // Body.setVelocity(player, {
+                //     x: player.velocity.x * (1 + ((Math.random() - .5) / 1.5)),
+                //     y: Math.max(player.velocity.y * -1.005, -10)   // подберите по вкусу
+                // });
+
+                const player = bodyA.label === 'player' ? bodyA : bodyB;
+
+                const normal = collision.normal;
+
+                const dot = player.velocity.x * normal.x + player.velocity.y * normal.y;
+                let vx = player.velocity.x - 2 * dot * normal.x;
+                let vy = player.velocity.y - 2 * dot * normal.y;
+
+                const mag = Math.hypot(vx, vy);
+                if (mag > 10) {
+                    vx = (vx / mag) * 10;
+                    vy = (vy / mag) * 10;
+                }
+
+                Body.setVelocity(player, { x: vx, y: vy });
             }
 
             if ((bodyA === b && bodyB.label === 'pike') || (bodyB === b && bodyA.label === 'pike')) {
