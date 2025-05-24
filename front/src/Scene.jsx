@@ -118,16 +118,16 @@ export default observer(() => {
                                 x={x * scale}
                                 y={y * scale}
                                 offsetX={10}
-                                offsetY={10}
+                                offsetY={20}
                             >
                                 <Image
                                     image={face}
                                     width={20}
-                                    height={20}
+                                    height={40}
                                 />
                                 <Rect
                                     width={20}
-                                    height={20}
+                                    height={40}
                                     fill={color}
                                 />
                             </Group>

@@ -55,7 +55,7 @@ const playerBodies = {};
 function addPlayer(name, x = spawnPoint.x, y = spawnPoint.y) {
     console.log(`added ${name}`);
 
-    const body = Bodies.rectangle(x, y, 20, 20, {
+    const body = Bodies.rectangle(x, y, 20, 40, {
         collisionFilter: {
             group: playerCollisionGroup,
         },
